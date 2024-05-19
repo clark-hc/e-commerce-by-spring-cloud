@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:h2:mem:order_db
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
+    com.example.orderservice: DEBUG

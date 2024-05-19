@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/clark-hc/e-commerce-for-spring-cloud-config.git
+          default-label: main
+
+server:
+  port: 8888
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
+    com.example.configserver: DEBUG

@@ -42,3 +42,15 @@ eureka:
 ```
 
 The Eureka Server provides a web interface at `http://localhost:8761` where you can view the registered services and their instances.
+
+
+
+docker network create e-commerce-for-spring-cloud-network
+
+
+
+docker rm eureka-server .
+
+docker build -t eureka-server .
+
+docker run --name eureka-server --network e-commerce-for-spring-cloud-network -p 8761:8761 eureka-server:latest
