@@ -6,9 +6,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.productservice.dto.ProductDTO;
 import com.example.productservice.entity.Product;
+import com.example.productservice.exception.InsufficientStockException;
 import com.example.productservice.exception.ResourceNotFoundException;
 import com.example.productservice.repository.ProductRepository;
 import com.example.productservice.service.ProductService;
@@ -20,6 +22,7 @@ public class ProductServiceImpl implements ProductService {
 	private ProductRepository productRepository;
 
 	@Override
+	@Transactional(readOnly = false)
 	public ProductDTO createProduct(ProductDTO productDTO) {
 		Product product = mapToEntity(productDTO);
 		Product savedProduct = productRepository.save(product);
@@ -43,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
 		Optional<Product> existingProductOptional = productRepository.findById(id);
 		if (existingProductOptional.isPresent()) {
@@ -59,6 +63,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public void deleteProduct(Long id) {
 		Optional<Product> productOptional = productRepository.findById(id);
 		if (productOptional.isPresent()) {
@@ -67,6 +72,28 @@ public class ProductServiceImpl implements ProductService {
 		} else {
 			throw new ResourceNotFoundException("Product not found with id: " + id);
 		}
+	}
+
+	@Override
+	public int getStockByProductId(Long id) {
+		Product product = productRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+		return product.getStock();
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void decreaseStock(Long productId, int quantity)
+			throws ResourceNotFoundException, InsufficientStockException {
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+		if (product.getStock() < quantity) {
+			throw new InsufficientStockException("Insufficient stock for product with id: " + productId);
+		}
+
+		product.setStock(product.getStock() - quantity);
+		productRepository.save(product);
 	}
 
 	private ProductDTO mapToDTO(Product product) {

@@ -24,6 +24,7 @@ public class UserServiceImpl implements UserService {
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@Override
+	@Transactional(readOnly = false)
 	public UserDTO createUser(UserDTO userDTO) {
 		User user = mapToEntity(userDTO);
 		String encodedPassword = passwordEncoder.encode(user.getPassword());
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public UserDTO updateUser(Long id, UserDTO userDTO) {
 		User existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -63,6 +65,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public void deleteUser(Long id) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -70,6 +73,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public void updatePassword(Long id, String newPassword) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -83,7 +87,7 @@ public class UserServiceImpl implements UserService {
 		userDTO.setId(user.getId());
 		userDTO.setUsername(user.getUsername());
 		// just for test, do not print password in production environment
-		// userDTO.setPassword(user.getPassword());
+		 userDTO.setPassword(user.getPassword());
 		return userDTO;
 	}
 

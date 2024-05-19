@@ -23,7 +23,6 @@
 		<module>product-service</module>
 		<module>order-service</module>
 		<module>user-service</module>
-		<module>common-module</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>

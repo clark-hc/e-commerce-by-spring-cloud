@@ -21,6 +21,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Override
+	@Transactional(readOnly = false)
     public OrderDTO createOrder(OrderDTO orderDTO) {
         Order order = mapToEntity(orderDTO);
         Order savedOrder = orderRepository.save(order);
@@ -43,6 +44,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+	@Transactional(readOnly = false)
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) {
         Order existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
@@ -57,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+	@Transactional(readOnly = false)
     public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));

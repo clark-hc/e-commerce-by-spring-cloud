@@ -15,4 +15,9 @@ public interface ProductService {
 	ProductDTO updateProduct(Long id, ProductDTO productDTO);
 
 	void deleteProduct(Long id);
+
+	int getStockByProductId(Long id);
+
+	void decreaseStock(Long productId, int quantity);
+
 }
