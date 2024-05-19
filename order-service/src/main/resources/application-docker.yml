@@ -27,6 +27,13 @@ spring:
     sampler:
       probability: 1
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 1000
+        readTimeout: 1000      
+
 server:
   port: 8082
 
