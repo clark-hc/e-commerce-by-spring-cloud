@@ -14,6 +14,8 @@ import com.example.orderservice.entity.Order;
 import com.example.orderservice.exception.ResourceNotFoundException;
 import com.example.orderservice.repository.OrderRepository;
 import com.example.orderservice.service.OrderService;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 
 @Service
 @Transactional
@@ -27,11 +29,25 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional(readOnly = false)
+	@HystrixCommand(//
+			fallbackMethod = "handleStockCheckFailure", //
+			commandProperties = { //
+					@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "800"), // 超时
+					@HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2"), // 请求阈值
+					@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "20"),// 错误比例阈值
+
+			}//
+	)
 	public OrderDTO createOrder(OrderDTO orderDTO) {
 		// 使用Ribbon进行客户端负载均衡,调用product-service检查库存
 		ResponseEntity<Integer> response = productFeignClient.getStockByProductId(orderDTO.getProductId());
 		if (response.getBody() < orderDTO.getQuantity()) {
-			throw new InsufficientStockException("库存不足");
+			OrderDTO resultByInsufficientStock = new OrderDTO();
+			resultByInsufficientStock.setProductId(orderDTO.getId());
+			resultByInsufficientStock.setUserId(orderDTO.getUserId());
+			resultByInsufficientStock.setQuantity(orderDTO.getQuantity());
+			resultByInsufficientStock.setStatus("Insufficient Stock");
+			return resultByInsufficientStock;
 		}
 
 		// 创建订单实体
@@ -48,6 +64,15 @@ public class OrderServiceImpl implements OrderService {
 		productFeignClient.decreaseStock(orderDTO.getProductId(), orderDTO.getQuantity());
 
 		return mapToDTO(order);
+	}
+
+	private OrderDTO handleStockCheckFailure(OrderDTO orderDTO) {
+		OrderDTO resultByHystrix = new OrderDTO();
+		resultByHystrix.setProductId(orderDTO.getId());
+		resultByHystrix.setUserId(orderDTO.getUserId());
+		resultByHystrix.setQuantity(orderDTO.getQuantity());
+		resultByHystrix.setStatus("Timeout by Hystrix");
+		return resultByHystrix;
 	}
 
 	@Override

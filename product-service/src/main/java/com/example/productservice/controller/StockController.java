@@ -25,6 +25,14 @@ public class StockController {
 	@GetMapping("/{productId}")
 	public ResponseEntity<Integer> getStockByProductId(@PathVariable Long productId) {
 		try {
+			//
+			try {
+				int sleepTimes = System.currentTimeMillis() % 2 == 0 ? 10 : 1000; // 使用sleep达到随机超时的目的, 触发Hystrix生效
+				Thread.sleep(sleepTimes);
+				System.out.println("@@@--->>>Sleep: " + sleepTimes + " ms");
+			} catch (InterruptedException e) {
+			}
+			//
 			int stock = productService.getStockByProductId(productId);
 			return ResponseEntity.ok(stock);
 		} catch (ResourceNotFoundException ex) {
