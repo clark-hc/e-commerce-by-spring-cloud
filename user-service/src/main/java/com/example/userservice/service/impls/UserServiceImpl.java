@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 		userDTO.setId(user.getId());
 		userDTO.setUsername(user.getUsername());
 		// just for test, do not print password in production environment
-		 userDTO.setPassword(user.getPassword());
+		userDTO.setPassword(user.getPassword());
 		return userDTO;
 	}
 

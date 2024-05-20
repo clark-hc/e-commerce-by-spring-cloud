@@ -21,3 +21,12 @@ docker run \
   -e EUREKA_SERVER=http://eureka-server:8761/eureka \
   -e ZIPKIN_SERVER=http://zipkin-server:9411 \
   product-service:latest
+
+docker run \
+  --name product-service-8181 \
+  --network e-commerce-for-spring-cloud-network \
+  -p 8181:8081 \
+  -e CONFIG_SERVER=http://config-server:8888 \
+  -e EUREKA_SERVER=http://eureka-server:8761/eureka \
+  -e ZIPKIN_SERVER=http://zipkin-server:9411 \
+  product-service:latest
